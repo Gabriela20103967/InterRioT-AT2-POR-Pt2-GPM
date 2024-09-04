@@ -1,0 +1,2 @@
+SSID: NMT-IoT
+PASSWORD: Do Not Share M3!
