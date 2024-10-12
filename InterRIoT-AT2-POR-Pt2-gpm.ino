@@ -6,78 +6,82 @@
  * Student ID:       20103967
  * Year/Semester:    2024/S2 
  * 
- * YOUR SUMMARY OF PORTFOLIO ACTIVITY 
- * GOES HERE 
- * 
+ * This code is trying to connect to Adafruit's Free MQTT service, displaying a error message if is not connect and 
+ * if is successful will display the wifi information.
  * 
  * Components & Identifiers: 
  * 
  */ 
-
+ 
 #include <WiFi.h>
 #include <Adafruit_MQTT.h>
 #include <Adafruit_MQTT_Client.h>
 
-#define IO_USERNAME "ADAFRUIT_USERNAME"
-#define IO_KEY "ADAFRUIT_KEY"
-#define IO_SERVER "ADAFRUIT_SERVER_URI"
+#define IO_USERNAME "Gabriela07"
+#define IO_KEY "aio_PvZZ255A8oKG9t2wATZNYzkEMN1c"
+#define IO_SERVER "io.adafruit.com"
 #define IO_SERVERPORT 1883
 
-#define RETRY_PERIOD 10000 //10 SECONDS
-#define MAX_ATTEMPTS 3
+#define RETRY_PERIOD 10000 // 10 SECONDS
+#define MAX_ATTEMPTS 4     
 #define DOT_PER_LINE 5
 
-const char* ssid = "WIFI_SSID";
-const char* password = "PASSWORD_HERE";
+const char* ssid = "TelstraA81499";         
+const char* password = "3kq4mvdbec"; 
 
 WiFiClient client;
 Adafruit_MQTT_Client mqtt(&client, IO_SERVER, IO_SERVERPORT, IO_USERNAME, IO_KEY);
 
-void setup(){
+void setup() {
   Serial.begin(9600);
+
+
   bool connected = wiFiConnect();
   if (connected) {
-    Serial.println("Connected");
+    Serial.println("Wi-Fi Connected");
     wiFiDetails();
 
     bool mqttConnected = mqttConnect();
-    if (mqttConnected){
+    if (mqttConnected) {
       Serial.println("MQTT Connected");
-    }else{
+    } else {
       Serial.println("MQTT Connection Failed");
     }
-  }else{
-    Serial.println("Connection Failed");
+  } else {
+    Serial.println("Wi-Fi Connection Failed");
   }
 }
 
-void loop(){
-
+void loop() {
+  // Loop code can go here
 }
 
-bool wiFiConnect(){
+bool wiFiConnect() {
   int dotCount = 0;
   uint8_t attempts = 0;
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.println("connecting to WiFi");
+  Serial.println("Connecting to Wi-Fi");
 
   while (WiFi.status() != WL_CONNECTED && attempts < MAX_ATTEMPTS) {
-    Serial.print(".")
     delay(RETRY_PERIOD);
+    Serial.print(".");
+    dotCount++;
     attempts++;
 
-    dotCount++;
-    if (dotCount % DOT_PER_LINE == 0){
+    if (dotCount % DOT_PER_LINE == 0) {
       Serial.println();
     }
 
+    if (WiFi.status() == WL_CONNECTED) {
+      return true;
+    }
   }
 
   return WiFi.status() == WL_CONNECTED;
 }
- 
+
 void wiFiDetails() {
   Serial.println();
   Serial.print("Local IP: ");
@@ -88,26 +92,20 @@ void wiFiDetails() {
   Serial.println(WiFi.RSSI());
 }
 
-bool mqttConnect(){
+bool mqttConnect() {
   uint8_t attempts = 0;
 
-  while (!mqtt.connected() && attempts < MAX_ATTEMPTS){
+  while (!mqtt.connected() && attempts < MAX_ATTEMPTS) {
     Serial.print("Connecting to MQTT...");
     if (mqtt.connect()) {
       Serial.println("MQTT Connected!");
       return true;
-    }else {
+    } else {
       Serial.println("MQTT Connection Failed, retrying...");
       delay(RETRY_PERIOD);
       attempts++;
     }
   }
 
-  return attempts < MAX_ATTEMPTS;
-  return false;
+  return mqtt.connected();
 }
- 
-
-
-
-
