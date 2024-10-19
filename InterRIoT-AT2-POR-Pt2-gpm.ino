@@ -1,44 +1,29 @@
-/** 
- * Assessment Title: Portfolio Part 2
- * Cluster:          Intermediate RIoT  
- * Qualification:    ICT50220 Diploma of Information Technology (Advanced Programming) 
- * Name:             Gabriela Morales
+
+ /**
  * Student ID:       20103967
  * Year/Semester:    2024/S2 
  * 
- * This code is trying to coonect to wifi and if is successful will turn on a led, and also trying to sent data
- * to the MQTT broker and one led will be flash when the data is sent.
+ * This code is trying to publish the data into my feed in my adafruit account
  * 
- * Components:
- * ESP32 Wrover
- * LED [RED]        LED_RED_1
- * LED [BLUE]       LED_BLUE_1
- * Photoresistor
- * Resistor [10Ω]
- * Resistor [220Ω]
- * Resistor [220Ω]
  */ 
- 
+
 #include <WiFi.h>
 #include <Adafruit_MQTT.h>
 #include <Adafruit_MQTT_Client.h>
 
-#define IO_USERNAME "ADAFRUIT_USERNAME"
+#define IO_USERNAME "ADAFRUIT_NAME"
 #define IO_KEY "ADAFRUIT_KEY"
-#define IO_SERVER "io.adafruit.com"
+#define IO_SERVER "ADAFRUIT_SERVER_URI"
 #define IO_SERVERPORT 1883
 #define IO_FEED "inter-riot-at2-data"
+
+const char* ssid = "WIFI_HERE";
+const char* password = "PASSWORD_HERE";
 
 #define RETRY_PERIOD 500
 #define RETRY_ADJUSTMENT 125
 #define MAX_ATTEMPTS 5
-
-#define LED_BLUE_1 37  
-#define LED_RED_1 43  
-#define photoresistorPin 32  
-
-const char* ssid = "WIFI_SSID";         
-const char* password = "PASSWORD_HERE";
+#define photoresistorPin 32
 
 WiFiClient client;
 Adafruit_MQTT_Client mqtt(&client, IO_SERVER, IO_SERVERPORT, IO_USERNAME, IO_KEY);
@@ -48,14 +33,10 @@ int lightValue = 0;
 
 void setup() {
   Serial.begin(9600);
-  
-  pinMode(LED_BLUE_1, OUTPUT);
-  pinMode(LED_RED_1, OUTPUT);
-  
+
   bool wifiConnected = wiFiConnect();
   if (wifiConnected) {
     Serial.println("Wi-Fi Connected");
-    digitalWrite(LED_BLUE_1, HIGH);  
     wiFiDetails();
 
     bool mqttConnected = mqttConnect();
@@ -71,19 +52,14 @@ void setup() {
 
 void loop() {
   lightValue = analogRead(photoresistorPin);
-  Serial.print("Value: ");
+  Serial.print("Light Value: ");
   Serial.println(lightValue);
-  
   if (!lightFeed.publish((int32_t)lightValue)) {
     Serial.println("Failed to publish data");
   } else {
     Serial.println("data published successfully");
-    
-    digitalWrite(LED_RED_1, HIGH);
-    delay(100);
-    digitalWrite(LED_RED_1, LOW);
   }
-  delay(5000);  
+  delay(5000); 
 }
 
 bool wiFiConnect() {
